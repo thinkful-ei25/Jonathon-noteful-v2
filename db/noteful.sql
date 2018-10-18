@@ -1,13 +1,21 @@
 -- psql -U dev -d noteful-app -f ./db/noteful.sql
-
+DROP TABLE IF EXISTS notes_tags;
 DROP TABLE IF EXISTS notes;
 DROP TABLE IF EXISTS folders;
+DROP TABLE IF EXISTS tags;
 
 CREATE TABLE folders (
     id serial PRIMARY KEY,
     name text NOT NULL UNIQUE
 );
+
 ALTER SEQUENCE folders_id_seq RESTART WITH 100;
+
+CREATE TABLE tags (
+  id serial PRIMARY KEY,
+  name text NOT NULL UNIQUE
+);
+
 
 CREATE TABLE notes (
   id serial PRIMARY KEY,
@@ -18,6 +26,12 @@ CREATE TABLE notes (
 );
 
 ALTER SEQUENCE notes_id_seq RESTART WITH 1000;
+
+CREATE TABLE notes_tags (
+  note_id INTEGER NOT NULL REFERENCES notes ON DELETE CASCADE,
+  tag_id INTEGER NOT NULL REFERENCES tags ON DELETE CASCADE
+);
+
 
 -- If you delete a folder then set folder_id to null on related notes
 -- IOW, delete a folder and move the notes to "uncategorized"
@@ -30,6 +44,13 @@ ALTER SEQUENCE notes_id_seq RESTART WITH 1000;
 -- If you delete a folder then delete all notes that reference the folder
 -- IOW, delete a folder and all the notes in it
 -- ALTER TABLE notes ADD COLUMN folder_id int REFERENCES folders(id) ON DELETE CASCADE;
+
+INSERT INTO tags (name) VALUES
+('Big'),
+('Small'),
+('Round'),
+('Square');
+
 
 INSERT INTO folders (name) VALUES
   ('Archive'),
@@ -89,6 +110,14 @@ INSERT INTO notes (title, content, folder_id) VALUES
   , NULL
   );
 
+
+
+INSERT INTO notes_tags (note_id, tag_id) VALUES
+  (1001, 1),
+  (1001, 2),
+  (1002, 2),
+  (1003, 3),
+  (1004, 4);
 -- -- get all notes
 -- SELECT * FROM notes;
 

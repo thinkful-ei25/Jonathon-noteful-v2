@@ -1,53 +1,44 @@
 'use strict';
 
 const express = require('express');
-const router = express.Router();
-
 const knex = require('../knex');
 
-/* ========== GET/READ ALL TAGS ========== */
+const router = express.Router();
+
+
 router.get('/', (req, res, next) => {
   knex.select('id', 'name')
     .from('folders')
     .then(results => {
       res.json(results);
     })
-    .catch(err => {
-      next(err);
-    });
+    .catch(err => next(err));
 });
 
-/* ========== GET/READ SINGLE TAGS ========== */
 router.get('/:id', (req, res, next) => {
-  knex.first('id', 'name')
-    .where('id', req.params.id)
+  let folderId = req.params.id;
+  knex.select('id', 'name')
     .from('folders')
-    .then(result => {
-      if (result) {
-        res.json(result);
-      } else {
-        next();
-      }
+    .where('id', folderId)
+    .then(results => {
+      res.json(results);
     })
-    .catch(err => {
-      next(err);
-    });
+    .catch(err => next(err));
 });
 
-/* ========== POST/CREATE ITEM ========== */
 router.post('/', (req, res, next) => {
-  const { name } = req.body;
-
-  /***** Never trust users. Validate input *****/
+  const {name} = req.body;
   if (!name) {
-    const err = new Error('Missing `name` in request body');
+    const err = new Error('Missing `title` in request body');
     err.status = 400;
     return next(err);
   }
 
-  const newItem = { name };
+  const newFolder = {
+    name: name,
+  };
 
-  knex.insert(newItem)
+  knex.insert(newFolder)
     .into('folders')
     .returning(['id', 'name'])
     .then((results) => {
@@ -59,8 +50,8 @@ router.post('/', (req, res, next) => {
     });
 });
 
-/* ========== PUT/UPDATE A SINGLE ITEM ========== */
 router.put('/:id', (req, res, next) => {
+  const noteId = req.params.id;
   const { name } = req.body;
 
   /***** Never trust users. Validate input *****/
@@ -70,11 +61,13 @@ router.put('/:id', (req, res, next) => {
     return next(err);
   }
 
-  const updateItem = { name };
+  const updateFolder = {
+    name : name
+  };
 
   knex('folders')
-    .update(updateItem)
-    .where('id', req.params.id)
+    .update(updateFolder)
+    .where('id', noteId)
     .returning(['id', 'name'])
     .then(([result]) => {
       if (result) {
@@ -88,7 +81,6 @@ router.put('/:id', (req, res, next) => {
     });
 });
 
-/* ========== DELETE/REMOVE A SINGLE ITEM ========== */
 router.delete('/:id', (req, res, next) => {
   knex.del()
     .where('id', req.params.id)
