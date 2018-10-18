@@ -5,20 +5,6 @@ const knex = require('../knex');
 const hydrateNotes = require('../utils/hydrateNotes');
 const router = express.Router();
 
-<<<<<<< HEAD
-// TEMP: Simple In-Memory Database
-const data = require('../db/notes');
-const simDB = require('../db/simDB');
-const notes = simDB.initialize(data);
-
-// Get All (and search by query)
-router.get('/', (req, res, next) => {
-  const { searchTerm } = req.query;
-
-  notes.filter(searchTerm)
-    .then(list => {
-      res.json(list);
-=======
 /* ========== GET/READ ALL NOTES ========== */
 router.get('/', (req, res, next) => {
   const searchTerm = req.query.searchTerm;
@@ -54,23 +40,12 @@ router.get('/', (req, res, next) => {
       } else {
         next();
       }
->>>>>>> solution/3-folders
     })
     .catch(err => {
       next(err);
     });
 });
 
-<<<<<<< HEAD
-// Get a single item
-router.get('/:id', (req, res, next) => {
-  const id = req.params.id;
-
-  notes.find(id)
-    .then(item => {
-      if (item) {
-        res.json(item);
-=======
 /* ========== GET/READ SINGLE NOTES ========== */
 router.get('/:id', (req, res, next) => {
   const noteId = req.params.id;
@@ -85,7 +60,6 @@ router.get('/:id', (req, res, next) => {
       if (result) {
         const hydrated = hydrateNotes(result);
         res.json(hydrated);
->>>>>>> solution/3-folders
       } else {
         next();
       }
@@ -95,20 +69,10 @@ router.get('/:id', (req, res, next) => {
     });
 });
 
-<<<<<<< HEAD
-// Put update an item
-router.put('/:id', (req, res, next) => {
-  const id = req.params.id;
-
-  /***** Never trust users - validate input *****/
-  const updateObj = {};
-  const updateableFields = ['title', 'content'];
-=======
 /* ========== POST/CREATE ITEM ========== */
 router.post('/', (req, res, next) => {
   const { title, content, folderId } = req.body;
   const tags = req.body.tags;
->>>>>>> solution/3-folders
 
   /***** Never trust users. Validate input *****/
   if (!title) {
@@ -157,16 +121,10 @@ router.post('/', (req, res, next) => {
     .catch(err => next(err));
 });
 
-<<<<<<< HEAD
-// Post (insert) an item
-router.post('/', (req, res, next) => {
-  const { title, content } = req.body;
-=======
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
 router.put('/:id', (req, res, next) => {
   const noteId = req.params.id;
   const { title, content, folderId } = req.body;
->>>>>>> solution/3-folders
 
   /***** Never trust users. Validate input *****/
   if (!title) {
@@ -204,19 +162,11 @@ router.put('/:id', (req, res, next) => {
     });
 });
 
-<<<<<<< HEAD
-// Delete an item
-router.delete('/:id', (req, res, next) => {
-  const id = req.params.id;
-
-  notes.delete(id)
-=======
 /* ========== DELETE/REMOVE A SINGLE ITEM ========== */
 router.delete('/:id', (req, res, next) => {
   knex.del()
     .where('id', req.params.id)
     .from('notes')
->>>>>>> solution/3-folders
     .then(() => {
       res.status(204).end();
     })
